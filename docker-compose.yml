@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # -----------------------
+  # Laravel PHP-FPM service
+  # -----------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pharmacy-app
+    container_name: pharmacy-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    networks:
+      - app-network
+
+  # -----------------------
+  # Nginx service
+  # -----------------------
+  web:
+    image: nginx:alpine
+    container_name: pharmacy-web
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./public:/var/www/html/public 
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+    depends_on:
+      - app
+
+# -----------------------
+# Networks
+# -----------------------
+networks:
+  app-network:
+    driver: bridge
